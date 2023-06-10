@@ -301,7 +301,7 @@ class Window(QWidget):
             print(data)
             print(self.sender().value())
 
-            if self.sender().value() == 0:
+            if self.sender().value() == 0 or self.sender().value() == (len(df)-1):
                 self.x = [0]  # 100 time points
                 self.y = [0]
 
@@ -353,7 +353,7 @@ class Window(QWidget):
             self.rectyaw.setRotation(180 + data["yaw"])
             self.rectyaw2.setRotation((data["yaw"]-data["yawPID"]))
             self.rectpitch.setRotation(180 + data["pitch"])
-            self.rectpitch2.setRotation((data["pitch"]-data["yawPID"]))
+            self.rectpitch2.setRotation((data["pitch"]-data["pitchPID"]))
 
 
 

@@ -48,7 +48,7 @@ import os
 from random import randint
 global startlogging
 startlogging = False
-fields = ['yaw', 'pitch', 'roll', 'xccel', 'zaccel', 'yawservo', 'pitchservo', 'altitude', 'tempurature', 'message', 'yawPID', 'pitchPID', 'speed']
+fields = ['yaw', 'pitch', 'roll', 'xccel', 'zaccel', 'yawservo', 'pitchservo', 'altitude', 'tempurature', 'message', 'yawPID', 'pitchPID']
 now = datetime.now()
 
 filename = "./rn_flight_data_" + now.strftime("%m-%d-%Y") + ".csv"
@@ -304,62 +304,75 @@ class Window(QWidget):
         global startlogging
 
         try:
-            data = df.iloc[self.sender().value()]
+            data = str(ser.readline())
             print(data)
+            if "{" in str(data):
+                data = data.split("}")[0] + "}"
+                print(data[7:])
+                data = json.loads(data[7:])
+                print(data)
+                #self.x = self.x[1:]  # Remove the first y element.
+                #self.x.append(self.x[-1] + 1)  # Add a new value 1 higher than the last.
 
-            self.y.append(data["yaw"])  # Add a new random value.
+                #self.y = self.y[1:]  # Remove the first
+                self.y.append(data["yaw"])  # Add a new random value.
 
-            self.x = range(0, len(self.y))
+                self.x = range(0, len(self.y))
 
-            self.data_line.setData(self.x, self.y)  # Update the data.
-
-
-            #self.xp.append(self.x[-1] + 1)  # Add a new value 1 higher than the last.
-
-            #self.y = self.y[1:]  # Remove the first
-            self.yp.append(data["pitch"])  # Add a new random value.
-
-            self.xp = range(0, len(self.yp))
-
-            self.data_linep.setData(self.xp, self.yp)  # Update the data.
-
-            #self.xr.append(self.x[-1] + 1)  # Add a new value 1 higher than the last.
-
-            #self.y = self.y[1:]  # Remove the first
-
-            self.yr.append(data["roll"])  # Add a new random value.
-
-            self.xr = range(0, len(self.yr))
-
-            self.data_liner.setData(self.xr, self.yr)  #
-
-            #self.xa.append(self.x[-1] + 1)  # Add a new value 1 higher than the last.
-
-            #self.y = self.y[1:]  # Remove the first
-            self.ya.append(data["altitude"])  # Add a new random value.
-
-            self.xa = range(0, len(self.ya))
-            self.data_linea.setData(self.xa, self.ya)  # Update the data.
+                self.data_line.setData(self.x, self.y)  # Update the data.
 
 
-            self.tempWidget.setText("temp: " + str(data["tempurature"]))
-            self.messageWidget.setText("message: " + str(data["message"]))
-            self.xaccelWidget.setText("X accel: " + str(data["xccel"]))
-            self.yaccelWidget.setText("Y accel: " + str(data["yaccel"]))
-            self.zaccelWidget.setText("Z accel: " + (str(data["zaccel"])))
-            self.yawpidWidget.setText("YawPID: " + (str(data["yawPID"])))
-            self.pitchpidWidget.setText("PitchPID: " + (str(data["pitchPID"])))
-            self.speedWidget.setText("Vertical Speed: " +(str(data["speed"])))
+                #self.xp.append(self.x[-1] + 1)  # Add a new value 1 higher than the last.
+
+                #self.y = self.y[1:]  # Remove the first
+                self.yp.append(data["pitch"])  # Add a new random value.
+
+                self.xp = range(0, len(self.yp))
+
+                self.data_linep.setData(self.xp, self.yp)  # Update the data.
+
+                #self.xr.append(self.x[-1] + 1)  # Add a new value 1 higher than the last.
+
+                #self.y = self.y[1:]  # Remove the first
+
+                self.yr.append(data["roll"])  # Add a new random value.
+
+                self.xr = range(0, len(self.yr))
+
+                self.data_liner.setData(self.xr, self.yr)  #
+
+                #self.xa.append(self.x[-1] + 1)  # Add a new value 1 higher than the last.
+
+                #self.y = self.y[1:]  # Remove the first
+                self.ya.append(data["altitude"])  # Add a new random value.
+
+                self.xa = range(0, len(self.ya))
+                self.data_linea.setData(self.xa, self.ya)  # Update the data.
 
 
-            self.rectyaw.setRotation(180 + data["yaw"])
-            self.rectyaw2.setRotation((data["yaw"]-data["yawPID"]))
-            self.rectpitch.setRotation(180 + data["pitch"])
-            self.rectpitch2.setRotation((data["pitch"]-data["yawPID"]))
+                self.tempWidget.setText("temp: " + str(data["tempurature"]))
+                self.messageWidget.setText("message: " + str(data["message"]))
+                self.xaccelWidget.setText("X accel: " + str(data["xccel"]))
+                self.yaccelWidget.setText("Y accel: " + str(data["yaccel"]))
+                self.zaccelWidget.setText("Z accel: " + (str(data["zaccel"])))
+
+                try:
+                    self.yawpidWidget.setText("YawPID: " + (str(data["yawPID"])))
+                    self.pitchpidWidget.setText("PitchPID: " + (str(data["pitchPID"])))
+                    self.speedWidget.setText("Vertical Speed: " +(str(data["speed"])))
+                    self.rectyaw2.setRotation((data["yaw"]-data["yawPID"]))
+                    self.rectpitch2.setRotation((data["pitch"]-data["pitchPID"]))
+                except:
+                    print("no yaw yet")
+
+                self.rectyaw.setRotation(180 + data["yaw"])
+
+                self.rectpitch.setRotation(180 + data["pitch"])
+
 
                 if startlogging == True:
                     print("LOGGING")
-                    csvdata = [data['yaw'], data['pitch'], data['roll'], data['xccel'], data['zaccel'], data['yawservo'], data['pitchservo'], data['altitude'], data['tempurature'], data['message'], data['yawPID'], data['pitchPID'], data['speed']]
+                    csvdata = [data['yaw'], data['pitch'], data['roll'], data['xccel'], data['zaccel'], data['yawservo'], data['pitchservo'], data['altitude'], data['tempurature'], data['message'], data['yawPID'], data['pitchPID']]
                     with open(filename,'a') as csvfile:
                         csvwriter = csv.writer(csvfile)
                         csvwriter.writerow(csvdata)
